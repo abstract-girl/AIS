@@ -1,3 +1,13 @@
-# AIS
+# Лаборатарные работы по Архитектуре информационных систем
 
-this is my repo for ais course
+## Лабораторная работа №1
+
+### Контекстная диаграмма
+
+![context](images/context.png)  
+
+### Контейнерная диаграмма
+
+![context](images/components.png)  
+
+
