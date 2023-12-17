@@ -1,0 +1,200 @@
+openapi: 3.0.0
+info:
+  title: Second lab
+  version: 1.0.0
+servers:
+  - url: http://192.168.0.177:8082
+  - url: http://192.168.0.177:8083
+  - url: http://192.168.0.177:8081
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+paths:
+  /users/search:
+    get:
+      tags:
+        - default
+      summary: Search for user
+      parameters:
+        - name: first_name
+          in: query
+          schema:
+            type: string
+          example: Ivan
+        - name: last_name
+          in: query
+          schema:
+            type: string
+          example: Sidorov
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /users/register:
+    post:
+      tags:
+        - default
+      summary: Add User
+      requestBody:
+        content: {}
+      parameters:
+        - name: first_name
+          in: query
+          schema:
+            type: string
+          example: Vasily
+        - name: last_name
+          in: query
+          schema:
+            type: string
+          example: Pupkin
+        - name: email
+          in: query
+          schema:
+            type: string
+          example: vasily.pupkin@gmail.com
+        - name: title
+          in: query
+          schema:
+            type: string
+          example: Mr
+        - name: login
+          in: query
+          schema:
+            type: string
+          example: vasyaP
+        - name: password
+          in: query
+          schema:
+            type: string
+          example: password
+        - name: role
+          in: query
+          schema:
+            type: string
+          example: customer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /users/auth:
+    get:
+      tags:
+        - default
+      summary: Authorize User
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /items/all:
+    get:
+      tags:
+        - default
+      summary: Get List Of Items
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /items/create:
+    post:
+      tags:
+        - default
+      summary: Create a new item
+      requestBody:
+        content: {}
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          example: Shampoo
+        - name: category
+          in: query
+          schema:
+            type: string
+          example: Bathroom
+        - name: description
+          in: query
+          schema:
+            type: string
+          example: Perfect care for your hair
+        - name: availability
+          in: query
+          schema:
+            type: boolean
+          example: 'true'
+        - name: price
+          in: query
+          schema:
+            type: integer
+          example: '22'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /buckets/search:
+    get:
+      tags:
+        - default
+      summary: Get bucket for the user
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+          example: '2'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /buckets/create:
+    post:
+      tags:
+        - default
+      summary: Create Bucket
+      requestBody:
+        content: {}
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+          example: '1'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /buckets/add_item:
+    post:
+      tags:
+        - default
+      summary: Add Item To Bucket
+      requestBody:
+        content: {}
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: item_id
+          in: query
+          schema:
+            type: integer
+          example: '3'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
