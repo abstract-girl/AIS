@@ -16,7 +16,7 @@ namespace database
                                                                     Config::get().get_cache_servers().value().find(':'));
         std::string port = Config::get().get_cache_servers().value().substr(Config::get().get_cache_servers().value().find(':') + 1);
 
-        std::cout << "cache host:" << host <<" port:" << port << std::endl;
+        std::cout << "[Logs] Using cache host:" << host <<" port:" << port << std::endl;
         _stream = rediscpp::make_stream(host, port);
     }
 

@@ -191,7 +191,7 @@ public:
                         return;
                     }
                     else {
-                        std::cout << "Unathorized" << std::endl; 
+                        std::cout << "[Error] Unathorized" << std::endl; 
                     }
                 }
 
@@ -298,9 +298,9 @@ public:
             std::ostream &ostr = response.send();
             Poco::JSON::Stringifier::stringify(root, ostr);
         }
-        catch (...)
+        catch (std::exception& err)
         {
-            std::cout << "It seems we have unknown issue" << std::endl;
+            std::cout << "[Logs] It seems we have unknown issue: " << err.what() << std::endl;
         }
 
         response.setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND);
