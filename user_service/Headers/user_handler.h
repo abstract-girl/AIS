@@ -117,9 +117,34 @@ public:
             {
                 std::string id = form.get("id");
 
+                bool no_cache = false;
+                if (form.has("no_cache")) no_cache = true;
+
+                if (!no_cache)
+                {
+                    std::optional<database::User> result = database::User::read_from_cache_by_id(id);
+                    if (result)
+                    {
+                        std::cout << "from cache" << std::endl;
+                        response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
+                        response.setChunkedTransferEncoding(true);
+                        response.setContentType("application/json");
+                        std::ostream &ostr = response.send();
+                        Poco::JSON::Stringifier::stringify(remove_password(result->toJSON()), ostr);
+                        return;
+                    }
+                }
+
                 std::optional<database::User> result = database::User::read_by_id(id);
                 if (result)
                 {
+
+                    if(!no_cache) {
+                        std::cout << "found in base" << id << std::endl;
+                        result->save_to_cache();
+                        std::cout << "saved to cache" << id << std::endl;
+                    }
+
                     response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
                     response.setChunkedTransferEncoding(true);
                     response.setContentType("application/json");
@@ -241,6 +266,7 @@ public:
                     if (check_result)
                     {
                         user.save_to_mysql();
+                        user.save_to_cache();
                         response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
                         response.setChunkedTransferEncoding(true);
                         response.setContentType("application/json");

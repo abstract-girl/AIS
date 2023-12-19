@@ -8,6 +8,7 @@
 #include <Poco/Data/RecordSet.h>
 #include <Poco/JSON/Parser.h>
 #include <Poco/Dynamic/Var.h>
+#include "cache.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -133,6 +134,31 @@ namespace database
             std::cout << "Unknown error!" << std::endl;
         }
         return {};
+    }
+
+    std::optional<User> User::read_from_cache_by_id(std::string id)
+    {
+        try
+        {
+            std::string result;
+            if (database::Cache::get().get(id, result))
+                return fromJSON(result);
+            else
+                return std::optional<User>();
+        }
+        catch (std::exception& err)
+        {
+           // std::cerr << "error:" << err.what() << std::endl;
+            return std::optional<User>();
+        }
+    }
+
+     void User::save_to_cache()
+    {
+        std::stringstream ss;
+        Poco::JSON::Stringifier::stringify(toJSON(), ss);
+        std::string message = ss.str();
+        database::Cache::get().put(_id, message);
     }
 
     std::optional<User> User::read_by_id(std::string id)

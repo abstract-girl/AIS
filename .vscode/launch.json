@@ -17,7 +17,8 @@
                 {"name": "DB_PORT", "value": "6033"},
                 {"name": "DB_LOGIN", "value": "stud"},
                 {"name": "DB_PASSWORD", "value": "stud"},
-                {"name": "DB_DATABASE", "value": "archdb"}
+                {"name": "DB_DATABASE", "value": "archdb"},
+                {"name": "CACHE", "value": "cache:6379"}
             ],
             "externalConsole": false
         },
