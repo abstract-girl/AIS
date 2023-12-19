@@ -157,12 +157,16 @@ public:
                     get_identity(info, login, password);
                     if (auto id = database::User::auth(login, password))
                     {
+                        std::cout << "id is " << id.value() << std::endl;
                         response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
                         response.setChunkedTransferEncoding(true);
                         response.setContentType("application/json");
                         std::ostream &ostr = response.send();
-                        ostr << "{ \"id\" : \"" << *id << "\"}" << std::endl;
+                        ostr << "{ \"id\" : \"" << id.value() << "\"}" << std::endl;
                         return;
+                    }
+                    else {
+                        std::cout << "Unathorized" << std::endl; 
                     }
                 }
 
@@ -270,6 +274,7 @@ public:
         }
         catch (...)
         {
+            std::cout << "It seems we have unknown issue" << std::endl;
         }
 
         response.setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND);

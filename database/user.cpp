@@ -97,24 +97,28 @@ namespace database
         return user;
     }
 
-    std::optional<long> User::auth(std::string &login, std::string &password)
+    std::optional<std::string> User::auth(std::string &login, std::string &password)
     {
-        std::optional<long> id {};
+        std::string id;
         try
         {
             for (const auto& shard : database::Database::get().get_all_hints()) {
+                
+                std::cout << "checking chard " << shard << std::endl;
                 Poco::Data::Session session = database::Database::get().create_session();
                 Poco::Data::Statement select(session);
 
                 select << "SELECT id FROM User where login=? and password=? " + shard,
-                    into(id.value()),
+                    into(id),
                     use(login),
                     use(password),
                     range(0, 1); //  iterate over result set one row at a time
 
                 select.execute();
                 Poco::Data::RecordSet rs(select);
-                if (rs.moveFirst()) return id;
+                if (rs.moveFirst()) {
+                    return id;
+                }
             }
         }
         catch (Poco::Data::MySQL::ConnectionException &e)
@@ -124,6 +128,9 @@ namespace database
         catch (Poco::Data::MySQL::StatementException &e)
         {
             std::cout << "statement:" << e.what() << std::endl;
+        }
+        catch (...) {
+            std::cout << "Unknown error!" << std::endl;
         }
         return {};
     }
