@@ -67,7 +67,7 @@ services:
       dockerfile: Dockerfile
     container_name: bucket_service
     environment:
-      - DB_HOST=mai-db-node-ex01
+      - DB_HOST=proxysql
       - DB_PORT=6033
       - DB_LOGIN=stud
       - DB_PASSWORD=stud
@@ -85,7 +85,7 @@ services:
       dockerfile: Dockerfile
     container_name: user_service
     environment:
-      - DB_HOST=mai-db-node-ex01
+      - DB_HOST=proxysql
       - DB_PORT=6033
       - DB_LOGIN=stud
       - DB_PASSWORD=stud
@@ -103,7 +103,7 @@ services:
       dockerfile: Dockerfile
     container_name: item_service
     environment:
-      - DB_HOST=mai-db-node-ex01
+      - DB_HOST=proxysql
       - DB_PORT=6033
       - DB_LOGIN=stud
       - DB_PASSWORD=stud
