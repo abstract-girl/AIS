@@ -115,7 +115,7 @@ public:
         {
             if (form.has("id") && (request.getMethod() == Poco::Net::HTTPRequest::HTTP_GET))
             {
-                long id = atol(form.get("id").c_str());
+                std::string id = form.get("id");
 
                 std::optional<database::User> result = database::User::read_by_id(id);
                 if (result)

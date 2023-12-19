@@ -29,7 +29,6 @@ add_executable(${USER_SERVICE} user_service/main.cpp
                                  database/database.cpp
                                  database/user.cpp)
                                  
-                                 
 add_executable(${BUCKET_SERVICE} bucket_service/main.cpp 
                                  config/config.cpp 
                                  database/database.cpp

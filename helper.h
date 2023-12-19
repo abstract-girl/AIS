@@ -21,7 +21,7 @@ bool get_identity(const std::string identity, std::string &login, std::string &p
     return true;
 }
 
-static bool hasSubstr(const std::string &str, const std::string &substr)
+[[maybe_unused]] static bool hasSubstr(const std::string &str, const std::string &substr)
 {
     if (str.size() < substr.size())
         return false;
