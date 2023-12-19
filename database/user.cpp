@@ -1,7 +1,6 @@
 #include "user.h"
 #include "database.h"
 #include "../config/config.h"
-#include "../user_id_generator.h"
 
 #include <Poco/Data/MySQL/Connector.h>
 #include <Poco/Data/MySQL/MySQLException.h>
@@ -10,7 +9,9 @@
 #include <Poco/JSON/Parser.h>
 #include <Poco/Dynamic/Var.h>
 #include "cache.h"
+#include <cppkafka/cppkafka.h>
 
+#include <fstream>
 #include <sstream>
 #include <exception>
 
@@ -78,14 +79,14 @@ namespace database
         Poco::Dynamic::Var result = parser.parse(str);
         Poco::JSON::Object::Ptr object = result.extract<Poco::JSON::Object::Ptr>();
 
-        user.id() = object->getValue<long>("id");
+        user.id() =         object->getValue<std::string>("id");
         user.first_name() = object->getValue<std::string>("first_name");
-        user.last_name() = object->getValue<std::string>("last_name");
-        user.email() = object->getValue<std::string>("email");
-        user.title() = object->getValue<std::string>("title");
-        user.login() = object->getValue<std::string>("login");
-        user.password() = object->getValue<std::string>("password");
-        user.role() = object->getValue<std::string>("role");
+        user.last_name() =  object->getValue<std::string>("last_name");
+        user.email() =      object->getValue<std::string>("email");
+        user.title() =      object->getValue<std::string>("title");
+        user.login() =      object->getValue<std::string>("login");
+        user.password() =   object->getValue<std::string>("password");
+        user.role() =       object->getValue<std::string>("role");
 
         return user;
     }
@@ -278,12 +279,109 @@ namespace database
         }
     }
 
+#include <mutex>
+    void User::send_to_queue()
+    {
+        static cppkafka::Configuration config = {
+            {"metadata.broker.list", Config::get().get_queue_host().value()},
+            {"acks", "all"}};
+        static cppkafka::Producer producer(config);
+        static std::mutex mtx;
+        static int message_key{0};
+        using Hdr = cppkafka::MessageBuilder::HeaderType;
+
+        std::lock_guard<std::mutex> lock(mtx);
+        std::stringstream ss;
+        Poco::JSON::Stringifier::stringify(toJSON(), ss);
+        std::string message = ss.str();
+        bool not_sent = true;
+
+        std::cout << "[Logs] Sending to queue message: " << message << std::endl; 
+
+        cppkafka::MessageBuilder builder(Config::get().get_queue_topic().value());
+        std::string mk = std::to_string(++message_key);
+        builder.key(mk);                                       // set some key
+        builder.header(Hdr{"producer_type", "user writer"}); // set some custom header
+        builder.payload(message);                              // set message
+
+        while (not_sent)
+        {
+            try
+            {
+                producer.produce(builder);
+                not_sent = false;
+            }
+            catch (...)
+            {
+            }
+        }
+    }
+
+    void User::preload(const std::string &file)
+    {
+        try
+        {
+
+            Poco::Data::Session session = database::Database::get().create_session();
+            std::string json;
+            std::ifstream is(file);
+            std::istream_iterator<char> eos;
+            std::istream_iterator<char> iit(is);
+            while (iit != eos)
+                json.push_back(*(iit++));
+            is.close();
+
+            Poco::JSON::Parser parser;
+            Poco::Dynamic::Var result = parser.parse(json);
+            Poco::JSON::Array::Ptr arr = result.extract<Poco::JSON::Array::Ptr>();
+
+            size_t i{0};
+            for (i = 0; i < arr->size(); ++i)
+            {
+                Poco::JSON::Object::Ptr object = arr->getObject(i);
+                std::string id = object->getValue<std::string>("id");
+                std::string first_name = object->getValue<std::string>("first_name");
+                std::string last_name = object->getValue<std::string>("last_name");
+                std::string email = object->getValue<std::string>("email");
+                std::string title = object->getValue<std::string>("title");
+                std::string login = object->getValue<std::string>("login");
+                std::string password = object->getValue<std::string>("password");
+                std::string role = object->getValue<std::string>("role");
+                Poco::Data::Statement insert(session);
+                insert << "INSERT INTO User (id, first_name, last_name, email, title, login, password, role) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                    Poco::Data::Keywords::use(id),
+                    Poco::Data::Keywords::use(first_name),
+                    Poco::Data::Keywords::use(last_name),
+                    Poco::Data::Keywords::use(email),
+                    Poco::Data::Keywords::use(title),
+                    Poco::Data::Keywords::use(login),
+                    Poco::Data::Keywords::use(password),
+                    Poco::Data::Keywords::use(role);
+
+                insert.execute();
+            }
+
+            std::cout << "Inserted " << i << " records" << std::endl;
+        }
+
+        catch (Poco::Data::MySQL::ConnectionException &e)
+        {
+            std::cout << "connection:" << e.what() << std::endl;
+            throw;
+        }
+        catch (Poco::Data::MySQL::StatementException &e)
+        {
+
+            std::cout << "statement:" << e.what() << std::endl;
+            throw;
+        }
+    }
+
     void User::save_to_mysql()
     {
         try {
             Poco::Data::Session session = database::Database::get().create_session();
             
-            _id = generate_uuid();
             std::string sharding_hint = database::Database::sharding_user(_id);
             std::cout << "The new user has an id " << _id << std::endl;
             std::cout << "Will use shard " << sharding_hint << " for them" << std::endl;

@@ -10,12 +10,51 @@ Config::Config()
 
         const char* cache_servers = std::getenv("CACHE");
         _cache_servers = cache_servers ? std::make_optional(std::string(cache_servers)) : std::nullopt;;
+
+        const char* queue_host = std::getenv("QUEUE_HOST");
+        _queue_host = queue_host ? std::make_optional(std::string(queue_host)) : std::nullopt;
+
+        const char* queue_topic = std::getenv("QUEUE_TOPIC");
+        _queue_topic = queue_topic ? std::make_optional(std::string(queue_topic)) : std::nullopt;
+        
+        const char* queue_group_id = std::getenv("QUEUE_GROUP_ID");
+        _queue_group_id = queue_group_id ? std::make_optional(long(std::stol(queue_group_id))) : std::nullopt;
+
 }
 
 Config &Config::get()
 {
     static Config _instance;
     return _instance;
+}
+
+std::optional<long>&Config::queue_group_id()
+{
+    return _queue_group_id;
+}
+
+const std::optional<long>&Config::get_queue_group_id() const
+{
+    return _queue_group_id;
+}
+std::optional<std::string>&Config::queue_host()
+{
+    return _queue_host;
+}
+
+std::optional<std::string>&Config::queue_topic()
+{
+    return _queue_topic;
+}
+
+const std::optional<std::string>&Config::get_queue_host() const
+{
+    return _queue_host;
+}
+
+const std::optional<std::string>&Config::get_queue_topic() const
+{
+    return _queue_topic;
 }
 
 const std::string &Config::get_port() const
