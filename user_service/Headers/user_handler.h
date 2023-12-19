@@ -115,7 +115,7 @@ public:
         {
             if (form.has("id") && (request.getMethod() == Poco::Net::HTTPRequest::HTTP_GET))
             {
-                long id = atol(form.get("id").c_str());
+                std::string id = form.get("id");
 
                 std::optional<database::User> result = database::User::read_by_id(id);
                 if (result)
@@ -157,12 +157,16 @@ public:
                     get_identity(info, login, password);
                     if (auto id = database::User::auth(login, password))
                     {
+                        std::cout << "id is " << id.value() << std::endl;
                         response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
                         response.setChunkedTransferEncoding(true);
                         response.setContentType("application/json");
                         std::ostream &ostr = response.send();
-                        ostr << "{ \"id\" : \"" << *id << "\"}" << std::endl;
+                        ostr << "{ \"id\" : \"" << id.value() << "\"}" << std::endl;
                         return;
+                    }
+                    else {
+                        std::cout << "Unathorized" << std::endl; 
                     }
                 }
 
@@ -270,6 +274,7 @@ public:
         }
         catch (...)
         {
+            std::cout << "It seems we have unknown issue" << std::endl;
         }
 
         response.setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_NOT_FOUND);
