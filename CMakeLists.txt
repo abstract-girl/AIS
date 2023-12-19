@@ -5,6 +5,8 @@ project(hl_server C CXX)
 SET (USER_SERVICE "user_service")
 SET (BUCKET_SERVICE "bucket_service")
 SET (ITEM_SERVICE "item_service")
+SET (WRITER_BINARY  "event_writer")
+
 
 set (STD_CXX "c++17")
 set (REDISCPP_FLAGS "-DREDISCPP_HEADER_ONLY=ON")
@@ -14,6 +16,7 @@ set (CMAKE_CXX_FLAGS_RELEASE "-O3 -g0 -std=${STD_CXX} -Wall -DNDEBUG ${REDISCPP_
 find_package(OpenSSL)
 find_package(Threads)
 find_package(ZLIB)
+find_package(CppKafka REQUIRED)
 find_package(Poco REQUIRED COMPONENTS Foundation Util Net XML JSON Crypto NetSSL)
 
 
@@ -45,6 +48,12 @@ add_executable(${ITEM_SERVICE} item_service/main.cpp
                                  database/database.cpp
                                  database/item.cpp)
 
+add_executable(${WRITER_BINARY} writer_main.cpp 
+                                 config/config.cpp 
+                                 database/cache.cpp
+                                 database/database.cpp
+                                 database/user.cpp)
+
 add_executable(load_data load_data.cpp)
 
 target_link_libraries(load_data PRIVATE 
@@ -65,6 +74,7 @@ target_link_libraries(${USER_SERVICE} PRIVATE
                              "PocoData"
                              "PocoDataMySQL"
                              "mysqlclient"
+                             CppKafka::cppkafka
                              ZLIB::ZLIB)
 
 target_include_directories(${BUCKET_SERVICE} PRIVATE "${CMAKE_BINARY_DIR}")
@@ -93,3 +103,16 @@ target_link_libraries(${ITEM_SERVICE} PRIVATE
                             "mysqlclient"
                             ZLIB::ZLIB)
                              
+
+target_include_directories(${WRITER_BINARY} PRIVATE "${CMAKE_BINARY_DIR}")
+set_target_properties(${WRITER_BINARY} PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(${WRITER_BINARY} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+
+target_link_libraries(${WRITER_BINARY} PRIVATE 
+                             ${CMAKE_THREAD_LIBS_INIT} 
+                             ${Poco_LIBRARIES}
+                             "PocoData"
+                             "PocoDataMySQL"
+                             "rdkafka++"
+                             CppKafka::cppkafka
+                             ZLIB::ZLIB)

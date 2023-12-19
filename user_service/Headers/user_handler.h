@@ -45,6 +45,7 @@ using Poco::Util::ServerApplication;
 
 #include "../../database/user.h"
 #include "../../helper.h"
+#include "../../user_id_generator.h"
 
 class UserHandler : public HTTPRequestHandler
 {
@@ -230,6 +231,7 @@ public:
                 if (form.has("first_name") && form.has("last_name") && form.has("email") && form.has("title") && form.has("login") && form.has("password"))
                 {
                     database::User user;
+                    user.id() = generate_uuid();
                     user.first_name() = form.get("first_name");
                     user.last_name() = form.get("last_name");
                     user.email() = form.get("email");
@@ -265,7 +267,7 @@ public:
 
                     if (check_result)
                     {
-                        user.save_to_mysql();
+                        user.send_to_queue();
                         user.save_to_cache();
                         response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
                         response.setChunkedTransferEncoding(true);

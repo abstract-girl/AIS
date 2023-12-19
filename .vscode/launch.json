@@ -18,11 +18,13 @@
                 {"name": "DB_LOGIN", "value": "stud"},
                 {"name": "DB_PASSWORD", "value": "stud"},
                 {"name": "DB_DATABASE", "value": "archdb"},
-                {"name": "CACHE", "value": "cache:6379"}
+                {"name": "CACHE", "value": "cache:6379"}, 
+                {"name": "QUEUE_HOST", "value": "kafka1:9092"},
+                {"name": "QUEUE_TOPIC", "value": "event_server"},
+                {"name": "QUEUE_GROUP_ID", "value": "0" }
             ],
             "externalConsole": false
         },
-
         {
             "name": "(gdb) Launch Items service",
             "type": "cppdbg",
