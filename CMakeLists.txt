@@ -45,6 +45,15 @@ add_executable(${ITEM_SERVICE} item_service/main.cpp
                                  database/database.cpp
                                  database/item.cpp)
 
+add_executable(load_data load_data.cpp)
+
+target_link_libraries(load_data PRIVATE 
+                             ${CMAKE_THREAD_LIBS_INIT} 
+                             ${Poco_LIBRARIES}
+                             "PocoData"
+                             "PocoDataMySQL"                      
+                             ZLIB::ZLIB)
+
 target_include_directories(${USER_SERVICE} PRIVATE "${CMAKE_BINARY_DIR}")
 target_compile_options(${USER_SERVICE} PRIVATE -Wall -Wextra -pedantic -Werror )
 set_target_properties(${USER_SERVICE} PROPERTIES LINKER_LANGUAGE CXX)

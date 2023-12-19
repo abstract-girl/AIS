@@ -1,6 +1,7 @@
 #include "user.h"
 #include "database.h"
 #include "../config/config.h"
+#include "../user_id_generator.h"
 
 #include <Poco/Data/MySQL/Connector.h>
 #include <Poco/Data/MySQL/MySQLException.h>
@@ -10,9 +11,6 @@
 #include <Poco/Dynamic/Var.h>
 #include "cache.h"
 
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 #include <sstream>
 #include <exception>
 
@@ -20,12 +18,6 @@ using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
 using Poco::Data::Statement;
 
-
-std::string generate_uuid() {
-    boost::uuids::random_generator generator;
-    boost::uuids::uuid uuid = generator();
-    return boost::uuids::to_string(uuid);
-}
 
 namespace database
 {
