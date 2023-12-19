@@ -15,5 +15,5 @@ request = function()
     headers['Content-Type'] = 'application/json'
     body = ''
     local id = ids[math.random(#ids)]
-    return wrk.format('GET', '/user?id='.. id, headers, body)
+    return wrk.format('GET', '/users/search?id='.. id, headers, body)
 end
