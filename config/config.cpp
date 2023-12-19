@@ -7,6 +7,9 @@ Config::Config()
         _login = std::getenv("DB_LOGIN");
         _password = std::getenv("DB_PASSWORD");
         _database = std::getenv("DB_DATABASE");
+
+        const char* cache_servers = std::getenv("CACHE");
+        _cache_servers = cache_servers ? std::make_optional(std::string(cache_servers)) : std::nullopt;;
 }
 
 Config &Config::get()
@@ -18,6 +21,16 @@ Config &Config::get()
 const std::string &Config::get_port() const
 {
     return _port;
+}
+
+const std::optional<std::string> &Config::get_cache_servers() const
+{
+    return _cache_servers;
+}
+
+std::optional<std::string> &Config::cache_servers()
+{
+    return _cache_servers;
 }
 
 const std::string &Config::get_host() const

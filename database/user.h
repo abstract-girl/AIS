@@ -40,6 +40,9 @@ namespace database
             std::string &login();
             std::string &password();
             std::string &role();
+
+            void save_to_cache();
+            static std::optional<User> read_from_cache_by_id(std::string id);
             
             static void init();
             static std::optional<User> read_by_id(std::string id);

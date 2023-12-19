@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #include <string>
+#include <optional>
 
 class  Config{
     private:
@@ -11,6 +12,8 @@ class  Config{
         std::string _login;
         std::string _password;
         std::string _database;
+        std::optional<std::string> _cache_servers;
+
 
     public:
         static Config& get();
@@ -20,12 +23,15 @@ class  Config{
         std::string& login();
         std::string& password();
         std::string& database();
+        std::optional<std::string>& cache_servers();
+
 
         const std::string& get_port() const ;
         const std::string& get_host() const ;
         const std::string& get_login() const ;
         const std::string& get_password() const ;
         const std::string& get_database() const ;
+        const std::optional<std::string>& get_cache_servers() const;
 };
 
 #endif
